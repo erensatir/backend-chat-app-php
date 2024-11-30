@@ -2,3 +2,4 @@
 .idea
 .vscode
 .env
+/src/Database/chat.db
