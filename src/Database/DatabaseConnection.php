@@ -8,9 +8,9 @@ use App\Config\Config;
 
 class DatabaseConnection
 {
-    private static $connection = null;
+    private static ?PDO $connection = null;
 
-    public static function getConnection()
+    public static function getConnection(): PDO
     {
         if (self::$connection === null) {
             try {
@@ -18,7 +18,7 @@ class DatabaseConnection
                 self::$connection = new PDO('sqlite:' . $dbPath);
                 self::$connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             } catch (PDOException $e) {
-                // Handle exception (e.g., log the error)
+                // Handle exception
                 throw new PDOException($e->getMessage(), (int)$e->getCode());
             }
         }
