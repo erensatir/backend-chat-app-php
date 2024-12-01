@@ -1,16 +1,21 @@
 <?php
 
 use Slim\App;
+use Slim\Routing\RouteCollectorProxy;
 use App\Controllers\GroupController;
 use App\Controllers\MessageController;
+use App\Middleware\AuthMiddleware;
 
 return function (App $app) {
-    // Group Routes
-    $app->post('/groups', [GroupController::class, 'createGroup']);
-    $app->post('/groups/{id}/join', [GroupController::class, 'joinGroup']);
-    $app->get('/groups', [GroupController::class, 'listGroups']);
+    // Protected routes (require authentication)
+    $app->group('', function (RouteCollectorProxy $group) {
+        // Group Routes
+        $group->post('/groups', [GroupController::class, 'createGroup']);
+        $group->post('/groups/{id}/join', [GroupController::class, 'joinGroup']);
+        $group->get('/groups', [GroupController::class, 'listGroups']);
 
-    // Message Routes
-    $app->post('/groups/{id}/messages', [MessageController::class, 'sendMessage']);
-    $app->get('/groups/{id}/messages', [MessageController::class, 'listMessages']);
+        // Message Routes
+        $group->post('/groups/{id}/messages', [MessageController::class, 'sendMessage']);
+        $group->get('/groups/{id}/messages', [MessageController::class, 'listMessages']);
+    })->add(new AuthMiddleware());
 };

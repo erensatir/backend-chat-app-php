@@ -9,6 +9,8 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 require __DIR__ . '/../vendor/autoload.php';
 
 $app = AppFactory::create();
+// Add Body Parsing Middleware
+$app->addBodyParsingMiddleware();
 
 $app->setBasePath('');
 
