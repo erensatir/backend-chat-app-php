@@ -14,7 +14,6 @@ class ControllerTestCase extends BaseTestCase
     {
         parent::setUp();
 
-        // Create App instance
         $this->app = AppFactory::create();
 
         $this->app = AppFactory::create();
