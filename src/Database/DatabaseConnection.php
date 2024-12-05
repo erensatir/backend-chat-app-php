@@ -24,4 +24,12 @@ class DatabaseConnection
         }
         return self::$connection;
     }
+
+    /**
+     * Set a custom PDO connection for testing or other purposes.
+     */
+    public static function setConnection(PDO $pdo): void
+    {
+        self::$connection = $pdo;
+    }
 }

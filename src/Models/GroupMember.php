@@ -8,7 +8,7 @@ use App\Database\DatabaseConnection;
 
 class GroupMember
 {
-    public static function addUserToGroup(int $userId, int $groupId): void
+    public static function addUserToGroup(int $userId, int $groupId): bool
     {
         $pdo = DatabaseConnection::getConnection();
 
@@ -19,13 +19,16 @@ class GroupMember
 
         $sql = "INSERT INTO GroupMembers (user_id, group_id) VALUES (:user_id, :group_id)";
         $stmt = $pdo->prepare($sql);
-        $stmt->bindParam(':user_id', $userId);
-        $stmt->bindParam(':group_id', $groupId);
+        $stmt->bindParam(':user_id', $userId, \PDO::PARAM_INT);
+        $stmt->bindParam(':group_id', $groupId, \PDO::PARAM_INT);
 
         try {
             $stmt->execute();
-        } catch (PDOException $e) {
-            throw new PDOException("Failed to add user to group: " . $e->getMessage());
+            // Return true on successful insertion
+            return true;
+        } catch (\PDOException $e) {
+            // Return false if insertion fails
+            return false;
         }
     }
 
