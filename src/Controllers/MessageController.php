@@ -25,7 +25,8 @@ class MessageController
         try {
             // Check if user is a member of the group
             if (!GroupMember::isUserInGroup($user->getId(), $groupId)) {
-                throw new \Exception('You are not a member of this group.');
+                $response->getBody()->write(json_encode(['error' => 'You are not a member of this group.']));
+                return $response->withStatus(403)->withHeader('Content-Type', 'application/json');
             }
 
             // Create the message

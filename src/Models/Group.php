@@ -75,6 +75,20 @@ class Group
         return null;
     }
 
+    public static function getAllGroups(): array
+    {
+        $pdo = DatabaseConnection::getConnection();
+        $sql = "SELECT * FROM Groups";
+        $stmt = $pdo->query($sql);
+
+        $groups = [];
+        while ($group = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $groups[] = new Group($group['id'], $group['name']);
+        }
+
+        return $groups;
+    }
+
     // Getter methods
     public function getId(): int
     {
