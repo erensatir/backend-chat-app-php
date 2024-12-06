@@ -20,10 +20,18 @@ class User
         $this->token = $token;
     }
 
-    public static function create(string $username): User
+    public static function create(string $username, ?string $forcedToken = null): User
     {
         $pdo = DatabaseConnection::getConnection();
-        $token = TokenGenerator::generateToken();
+        $token = $forcedToken ?? TokenGenerator::generateToken();
+
+        // Pre-check if token already exists
+        $checkStmt = $pdo->prepare("SELECT 1 FROM Users WHERE token = :token");
+        $checkStmt->execute([':token' => $token]);
+        if ($checkStmt->fetch()) {
+            throw new \Exception("Token already taken");
+        }
+
         $sql = "INSERT INTO Users (username, token) VALUES (:username, :token)";
         $stmt = $pdo->prepare($sql);
         $stmt->bindParam(':username', $username);

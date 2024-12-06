@@ -39,10 +39,14 @@ class UserTest extends BaseTestCase
     // Expected result: Should throw an error.
     public function testCreateUserWithTakenToken()
     {
-        $user1 = User::create('testuser1');
-        $existingToken = $user1->getToken();
+        // Create first user with a forced token
+        User::create('testuser1', 'fixed_token');
+
         $this->expectException(\Exception::class);
-        User::create('testuser2', $existingToken);
+        $this->expectExceptionMessage('Token already taken');
+        
+        // Attempt to create second user with the same token, should throw exception
+        User::create('testuser2', 'fixed_token');
     }
 
     

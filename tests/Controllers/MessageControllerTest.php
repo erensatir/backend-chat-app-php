@@ -6,6 +6,7 @@ use Tests\ControllerTestCase;
 use App\Models\User;
 use App\Models\Group;
 use App\Models\GroupMember;
+use App\Models\Message;
 
 class MessageControllerTest extends ControllerTestCase
 {
@@ -98,26 +99,27 @@ class MessageControllerTest extends ControllerTestCase
     public function testListMessagesSince()
     {
         $user = User::create('msgControllerUser4');
-        $group = Group::create('MsgControllerGroup4');
+        $group = Group::create('SinceGroup4');
         GroupMember::addUserToGroup($user->getId(), $group->getId());
 
         // Create an old message
-        $oldMessageRequest = $this->createRequest('POST', "/groups/{$group->getId()}/messages", $user->getToken(), ['message' => 'Old message']);
-        $this->handleRequest($oldMessageRequest);
+        $msg1 = Message::create($group->getId(), $user->getId(), 'Old message');
+        $oldTimestamp = $msg1->getTimestamp();
 
-        // Sleep to ensure a different timestamp
-        sleep(1);
+        // Wait 2 seconds so the next message definitely has a greater timestamp
+        sleep(2);
 
         // Create a new message
-        $newMessageRequest = $this->createRequest('POST', "/groups/{$group->getId()}/messages", $user->getToken(), ['message' => 'New message']);
-        $this->handleRequest($newMessageRequest);
+        $msg2 = Message::create($group->getId(), $user->getId(), 'New message');
 
-        $sinceTimestamp = date('Y-m-d H:i:s', time());
-        $listRequest = $this->createRequest('GET', "/groups/{$group->getId()}/messages?since={$sinceTimestamp}", $user->getToken());
-        $listResponse = $this->handleRequest($listRequest);
+        // Now perform the GET request with the oldTimestamp
+        $request = $this->createRequest('GET', "/groups/{$group->getId()}/messages?since={$oldTimestamp}", $user->getToken());
+        $response = $this->handleRequest($request);
 
-        $this->assertEquals(200, $listResponse->getStatusCode());
-        $messages = json_decode((string)$listResponse->getBody(), true);
+        $this->assertEquals(200, $response->getStatusCode(), 'Expected 200 OK');
+        $messages = json_decode((string)$response->getBody(), true);
+
+        // We expect only the newer message after oldTimestamp
         $this->assertCount(1, $messages, 'Expected only newer messages after the given timestamp.');
         $this->assertEquals('New message', $messages[0]['message']);
     }
