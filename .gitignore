@@ -3,3 +3,4 @@
 .vscode
 .env
 /src/Database/chat.db
+.phpunit.result.cache
