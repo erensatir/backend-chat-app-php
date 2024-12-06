@@ -2,18 +2,20 @@
 
 declare(strict_types=1);
 
+use Slim\Factory\AppFactory;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Slim\Factory\AppFactory;
 
 require __DIR__ . '/../vendor/autoload.php';
 
 $app = AppFactory::create();
+// Add Body Parsing Middleware
+$app->addBodyParsingMiddleware();
 
-// Generic Not Found Handler
 $app->setBasePath('');
-$errorMiddleware = $app->addErrorMiddleware(true, true, true);
 
+$errorMiddleware = $app->addErrorMiddleware(true, true, true);
+// Custom Not Found Handler
 $errorMiddleware->setErrorHandler(
     Slim\Exception\HttpNotFoundException::class,
     function (Request $request, Throwable $exception, bool $displayErrorDetails) use ($app) {
@@ -22,11 +24,7 @@ $errorMiddleware->setErrorHandler(
         return $response->withStatus(404);
     }
 );
-
-// Define a simple route to test
-$app->get('/', function (Request $request, Response $response) {
-    $response->getBody()->write('Hello, World!');
-    return $response;
-});
-
+// Included routes
+(require __DIR__ . '/../src/Routes/routes.php')($app);
+// Run the application
 $app->run();
