@@ -4,3 +4,5 @@
 .env
 /src/Database/chat.db
 .phpunit.result.cache
+test-report.html
+test-results.xml
