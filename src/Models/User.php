@@ -59,18 +59,17 @@ class User
     public static function findByToken(string $token): ?User
     {
         $pdo = DatabaseConnection::getConnection();
-        $sql = "SELECT * FROM Users WHERE token = :token";
-        $stmt = $pdo->prepare($sql);
-        $stmt->bindParam(':token', $token);
 
-        $stmt->execute();
+        $stmt = $pdo->prepare("SELECT id, username, token FROM Users WHERE token = :token");
+        $stmt->execute([':token' => $token]);
+
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if ($user) {
             return new User($user['id'], $user['username'], $user['token']);
         }
 
-        return null;
+        return null; // Return null if no user is found
     }
 
     // Getter methods
