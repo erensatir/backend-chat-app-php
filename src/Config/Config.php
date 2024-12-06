@@ -11,7 +11,7 @@ class Config
     private function __construct()
     {
         // Load the .env file
-        $dotenv = Dotenv::createImmutable(dirname(__DIR__, 2));
+        $dotenv = Dotenv::createImmutable(__DIR__ . '/../../');
         $dotenv->load();
     }
 
@@ -21,10 +21,14 @@ class Config
             self::$instance = new self();
         }
 
-        // If the value is a relative path, resolve it to an absolute path
         $value = $_ENV[$key] ?? $default;
-        if ($key === 'DB_PATH' && $value && !str_starts_with($value, '/')) {
-            return dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . $value;
+
+        // Resolve DB_PATH to absolute path
+        if ($key === 'DB_PATH' && $value) {
+            $baseDir = getenv('APP_BASE_DIR') ?: dirname(__DIR__, 2);
+            if (!str_starts_with($value, '/')) {
+                $value = $baseDir . DIRECTORY_SEPARATOR . $value;
+            }
         }
 
         return $value;
