@@ -21,6 +21,12 @@ class Config
             self::$instance = new self();
         }
 
-        return $_ENV[$key] ?? $default;
+        // If the value is a relative path, resolve it to an absolute path
+        $value = $_ENV[$key] ?? $default;
+        if ($key === 'DB_PATH' && $value && !str_starts_with($value, '/')) {
+            return dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . $value;
+        }
+
+        return $value;
     }
 }

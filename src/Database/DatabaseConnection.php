@@ -18,10 +18,16 @@ class DatabaseConnection
 
             try {
                 $dbPath = Config::get('DB_PATH');
+
+                // Check if the database file exists or create it if necessary
+                if (!file_exists($dbPath)) {
+                    touch($dbPath);
+                }
+
                 self::$connection = new PDO('sqlite:' . $dbPath);
                 self::$connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             } catch (PDOException $e) {
-                throw new PDOException($e->getMessage(), (int)$e->getCode());
+                throw new PDOException("Failed to connect to database: " . $e->getMessage(), (int)$e->getCode());
             }
         }
         return self::$connection;
