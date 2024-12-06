@@ -53,7 +53,6 @@ try {
     $pdo->exec($createGroupMembersTable);
     $pdo->exec($createMessagesTable);
 
-    echo "Database initialized successfully.\n";
 } catch (PDOException $e) {
     echo "An error occurred: " . $e->getMessage() . "\n";
 }
