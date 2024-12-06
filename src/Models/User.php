@@ -25,6 +25,13 @@ class User
         $pdo = DatabaseConnection::getConnection();
         $token = $forcedToken ?? TokenGenerator::generateToken();
 
+        // Check if username already exists if you prefer a pre-check (optional)
+        $checkUserStmt = $pdo->prepare("SELECT 1 FROM Users WHERE username = :username");
+        $checkUserStmt->execute([':username' => $username]);
+        if ($checkUserStmt->fetch()) {
+            throw new \Exception("Username already taken");
+        }
+
         // Pre-check if token already exists
         $checkStmt = $pdo->prepare("SELECT 1 FROM Users WHERE token = :token");
         $checkStmt->execute([':token' => $token]);

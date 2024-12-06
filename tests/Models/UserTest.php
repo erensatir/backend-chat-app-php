@@ -59,6 +59,16 @@ class UserTest extends BaseTestCase
         $this->assertNull($user, 'Expected findByToken() to return null for a non-existent token.');
     }
 
+    public function testCreateUserWithDuplicateUsername()
+{
+    User::create('duplicateUser');
+    $this->expectException(\Exception::class);
+    $this->expectExceptionMessage('Username already taken');
+
+    // Attempt to create another user with the same username
+    User::create('duplicateUser');
+}
+
     
     // Test ensuring tokens are indeed unique.
     // Expected result: All tokens should be unique.
