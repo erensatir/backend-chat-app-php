@@ -12,22 +12,30 @@ class GroupMember
     {
         $pdo = DatabaseConnection::getConnection();
 
-        // Check if already a member
+        // Check if user exists
+        $userCheck = $pdo->prepare("SELECT 1 FROM Users WHERE id = :uid");
+        $userCheck->execute([':uid' => $userId]);
+        if (!$userCheck->fetch()) {
+            return false;
+        }
+
+        // Check if group exists
+        $groupCheck = $pdo->prepare("SELECT 1 FROM Groups WHERE id = :gid");
+        $groupCheck->execute([':gid' => $groupId]);
+        if (!$groupCheck->fetch()) {
+            return false;
+        }
+
+        // Check if user is already a member
         if (self::isUserInGroup($userId, $groupId)) {
             throw new \Exception("User is already a member of the group.");
         }
 
-        $sql = "INSERT INTO GroupMembers (user_id, group_id) VALUES (:user_id, :group_id)";
-        $stmt = $pdo->prepare($sql);
-        $stmt->bindParam(':user_id', $userId, \PDO::PARAM_INT);
-        $stmt->bindParam(':group_id', $groupId, \PDO::PARAM_INT);
-
+        $stmt = $pdo->prepare("INSERT INTO GroupMembers (user_id, group_id) VALUES (:user_id, :group_id)");
         try {
-            $stmt->execute();
-            // Return true on successful insertion
+            $stmt->execute([':user_id' => $userId, ':group_id' => $groupId]);
             return true;
         } catch (\PDOException $e) {
-            // Return false if insertion fails
             return false;
         }
     }

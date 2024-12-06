@@ -34,7 +34,9 @@ class User
             $id = $pdo->lastInsertId();
             return new User($id, $username, $token);
         } catch (PDOException $e) {
-            // Handle exception
+            if (strpos($e->getMessage(), 'UNIQUE') !== false) {
+                throw new \Exception("Token already taken");
+            }
             throw new PDOException("Failed to create user: " . $e->getMessage());
         }
     }
@@ -57,7 +59,16 @@ class User
     }
 
     // Getter methods
-    public function getId(): int { return $this->id; }
-    public function getUsername(): string { return $this->username; }
-    public function getToken(): string { return $this->token; }
+    public function getId(): int
+    {
+        return $this->id;
+    }
+    public function getUsername(): string
+    {
+        return $this->username;
+    }
+    public function getToken(): string
+    {
+        return $this->token;
+    }
 }

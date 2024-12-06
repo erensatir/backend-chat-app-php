@@ -26,6 +26,26 @@ class Message
     public static function create(int $groupId, int $userId, string $message): Message
     {
         $pdo = DatabaseConnection::getConnection();
+
+        // Validate message text
+        if (empty($message)) {
+            throw new \Exception("Message text cannot be empty");
+        }
+
+        // Check user existence
+        $userCheck = $pdo->prepare("SELECT 1 FROM Users WHERE id = :uid");
+        $userCheck->execute([':uid' => $userId]);
+        if (!$userCheck->fetch()) {
+            throw new \Exception("Invalid user ID: $userId");
+        }
+
+        // Check group existence
+        $groupCheck = $pdo->prepare("SELECT 1 FROM Groups WHERE id = :gid");
+        $groupCheck->execute([':gid' => $groupId]);
+        if (!$groupCheck->fetch()) {
+            throw new \Exception("Invalid group ID: $groupId");
+        }
+
         $sql = "INSERT INTO Messages (group_id, user_id, message) VALUES (:group_id, :user_id, :message)";
         $stmt = $pdo->prepare($sql);
         $stmt->bindParam(':group_id', $groupId);
@@ -73,9 +93,24 @@ class Message
     }
 
     // Getter methods
-    public function getId(): int { return $this->id; }
-    public function getGroupId(): int { return $this->groupId; }
-    public function getUserId(): int { return $this->userId; }
-    public function getMessage(): string { return $this->message; }
-    public function getTimestamp(): string { return $this->timestamp; }
+    public function getId(): int
+    {
+        return $this->id;
+    }
+    public function getGroupId(): int
+    {
+        return $this->groupId;
+    }
+    public function getUserId(): int
+    {
+        return $this->userId;
+    }
+    public function getMessage(): string
+    {
+        return $this->message;
+    }
+    public function getTimestamp(): string
+    {
+        return $this->timestamp;
+    }
 }

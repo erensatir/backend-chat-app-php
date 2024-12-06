@@ -19,6 +19,14 @@ class Group
 
     public static function create(string $name): Group
     {
+        if (empty($name)) {
+            throw new \Exception("Group name cannot be empty");
+        }
+
+        if (self::findByName($name) !== null) {
+            throw new \Exception("Group name already exists");
+        }
+
         $pdo = DatabaseConnection::getConnection();
         $sql = "INSERT INTO Groups (name) VALUES (:name)";
         $stmt = $pdo->prepare($sql);
@@ -67,21 +75,13 @@ class Group
         return null;
     }
 
-    public static function getAllGroups(): array
-    {
-        $pdo = DatabaseConnection::getConnection();
-        $sql = "SELECT * FROM Groups";
-        $stmt = $pdo->query($sql);
-
-        $groups = [];
-        while ($group = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $groups[] = new Group($group['id'], $group['name']);
-        }
-
-        return $groups;
-    }
-
     // Getter methods
-    public function getId(): int { return $this->id; }
-    public function getName(): string { return $this->name; }
+    public function getId(): int
+    {
+        return $this->id;
+    }
+    public function getName(): string
+    {
+        return $this->name;
+    }
 }
